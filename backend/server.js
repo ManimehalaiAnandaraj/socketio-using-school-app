@@ -31,7 +31,7 @@ const server = http.createServer(app);
 // Socket setup
 const io = new Server(server, {
   cors: {
-    origin: "http://socketio-using-school-app.vercel.app",
+    origin: "socketio-using-school-app.vercel.app",
     credentials: true,
   },
 });
