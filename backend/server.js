@@ -14,7 +14,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "http://socketio-using-school-2376qzmfu-manimehalais-projects.vercel.app",
     credentials: true,
   })
 );
@@ -31,7 +31,7 @@ const server = http.createServer(app);
 // Socket setup
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: "http://socketio-using-school-app.vercel.app",
     credentials: true,
   },
 });
