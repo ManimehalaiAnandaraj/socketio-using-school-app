@@ -14,9 +14,11 @@ const app = express();
 
 app.use(
   cors({
-    origin:[
-    "http://localhost:5173", 
-    "http://socketio-using-school-app.vercel.app"],
+    origin: [
+      "http://localhost:5173",
+      "https://socketio-using-school-app.vercel.app",
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
 );
@@ -27,28 +29,27 @@ app.use(cookieParser());
 app.use("/api/users", userRoutes);
 app.use("/api/messages", messageRoutes);
 
-// Create server
 const server = http.createServer(app);
 
-// Socket setup
 const io = new Server(server, {
   cors: {
     origin: [
-    "http://localhost:5173", 
-    "http://socketio-using-school-app.vercel.app"],
+      "http://localhost:5173",
+      "https://socketio-using-school-app.vercel.app",
+    ],
+    methods: ["GET", "POST"],
     credentials: true,
   },
 });
 
-// CALL HANDLER
 socketHandler(io);
 
-// DB
 mongoose.connect(process.env.MONGO_URI).then(() => {
   console.log("MongoDB Connected");
 });
 
-// Start
-server.listen(5000, () => {
-  console.log("Server running on port 5000");
+const PORT = process.env.PORT || 5000;
+
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
