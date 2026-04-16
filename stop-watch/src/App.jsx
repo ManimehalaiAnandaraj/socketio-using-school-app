@@ -61,7 +61,7 @@ if(isLoading) return <p>...Loading</p>
            </Route>
 
         {/* Separate page */}
-        <Route path="/stopwatch" element={<Stopwatch />} />
+        <Route path="/" element={<Stopwatch />} />
         <Route path='/login' element={<Login />} />
         
       </Routes>
