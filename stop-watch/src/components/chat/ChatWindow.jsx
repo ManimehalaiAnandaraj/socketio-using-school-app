@@ -16,7 +16,10 @@ const ChatWindow = ({ selectedUser }) => {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/messages?senderId=${currentUser._id}&receiverId=${selectedUser._id}`
+        `${import.meta.env.VITE_API_URL}/api/messages?senderId=${currentUser._id}&receiverId=${selectedUser._id}`,
+        {
+          credentials: "include",
+        }
       );
 
       const data = await res.json();
