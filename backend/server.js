@@ -17,6 +17,7 @@ app.use(
     origin: [
       "http://localhost:5173",
       "https://socketio-using-school-app.vercel.app",
+      "https://socketio-using-school-app-git-main-manimehalais-projects.vercel.app",
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
@@ -36,6 +37,7 @@ const io = new Server(server, {
     origin: [
       "http://localhost:5173",
       "https://socketio-using-school-app.vercel.app",
+      "https://socketio-using-school-app-git-main-manimehalais-projects.vercel.app",
     ],
     methods: ["GET", "POST"],
     credentials: true,
