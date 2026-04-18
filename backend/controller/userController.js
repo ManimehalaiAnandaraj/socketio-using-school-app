@@ -94,6 +94,7 @@ export const loginUser = async (req, res) => {
     //  ONLY ONE RESPONSE
     res.status(200).json({
       message: "Login Successful",
+      token,
       user,
     });
 

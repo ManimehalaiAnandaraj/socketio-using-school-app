@@ -6,68 +6,79 @@
   padding: 0;
 }
 
-/* Smooth transitions only where needed */
 button, a {
   transition: all 0.25s ease;
 }
 
-/* Prevent layout shift (IMPORTANT) */
 body {
   overflow: hidden;
   font-family: Arial, sans-serif;
   color: var(--text-color);
-  border:none;
+  border: none;
 }
 
 /* ========================= */
-/*  THEME VARIABLES */
+/* THEME VARIABLES — LIGHT */
 /* ========================= */
 :root {
   --primary: #2563eb;
-  --primary-dark: #1d4ed8;
+  --primary-hover: #1d4ed8;
 
   --nav-bg: #ffffff;
-  --sidebar-bg: #f5f4f8f6;      /* white sidebar */
-  --sidebar-text: #0f172a; 
+  --sidebar-bg: #f5f4f8f6;
+  --sidebar-text: #0f172a;
+  --sidebar-hover: #c8ccd1;
 
   --bg-main: #f1f5f9;
   --bg-secondary: #e2e8f0;
+  --card-bg: #ffffff;
 
   --text-color: #0f172a;
   --text-muted: #64748b;
 
-  --card-bg: #ffffff;
   --border-color: #e2e8f0;
 
   --hover-bg: #d7d9da;
   --active-bg: #2563eb;
 
-  --sidebar-hover: #c8ccd1;
+  --input-bg: #ffffff;
+  --input-border: #e2e8f0;
+  --input-text: #0f172a;
+  --select-bg: #ffffff;
 
-  --success: #22c55e; --danger: #ef4444; --warning: #f59e0b;
-
+  --success: #22c55e;
+  --danger: #ef4444;
+  --warning: #f59e0b;
 }
 
-[data-theme="dark"] {
+/* ========================= */
+/* THEME VARIABLES — DARK */
+/* ========================= */
+html[data-theme="dark"] {
   --primary: #3b82f6;
+  --primary-hover: #2563eb;
 
   --nav-bg: #0f172a;
-   --sidebar-bg: #020617;      /* dark sidebar */
-  --sidebar-text: #e2e8f0;  
+  --sidebar-bg: #020617;
+  --sidebar-text: #e2e8f0;
+  --sidebar-hover: #565758;
 
   --bg-main: #020617;
   --bg-secondary: #0f172a;
+  --card-bg: #0f172a;
 
   --text-color: #e2e8f0;
   --text-muted: #94a3b8;
 
-  --card-bg: #0f172a;
   --border-color: #1e293b;
 
-  --hover-bg: #686a6e;
+  --hover-bg: #1e293b;
   --active-bg: #3b82f6;
 
-   --sidebar-hover: #565758;
+  --input-bg: #0f172a;
+  --input-border: #1e293b;
+  --input-text: #e2e8f0;
+  --select-bg: #0f172a;
 }
 
 /* ========================= */
@@ -77,9 +88,9 @@ body {
   height: 100vh;
   display: flex;
   flex-direction: column;
+  background: var(--bg-main);
 }
 
-/* Navbar */
 .navbar {
   height: 60px;
   flex-shrink: 0;
@@ -92,15 +103,13 @@ body {
   border-bottom: 1px solid var(--border-color);
 }
 
-/* Right side (icons) */
 .nav-right {
   display: flex;
   align-items: center;
   gap: 15px;
-  position: relative; /* for dropdown */
+  position: relative;
 }
 
-/* Menu button */
 .menu-btn {
   font-size: 22px;
   background: none;
@@ -110,14 +119,12 @@ body {
   display: none;
 }
 
-/* Main layout */
 .main {
   flex: 1;
   display: flex;
   overflow: hidden;
 }
 
-/* Sidebar */
 .sidebar {
   width: 220px;
   flex-shrink: 0;
@@ -126,13 +133,8 @@ body {
   border-right: 1px solid var(--border-color);
 }
 
-.sidebar ul {
-  list-style: none;
-}
-
-.sidebar ul li {
-  padding: 10px 15px;
-}
+.sidebar ul { list-style: none; }
+.sidebar ul li { padding: 10px 15px; }
 
 .sidebar a {
   text-decoration: none;
@@ -142,17 +144,9 @@ body {
   border-radius: 8px;
 }
 
-.sidebar a.active {
-  background: var(--primary);
-  color: white;
-}
+.sidebar a.active { background: var(--primary); color: white; }
+.sidebar a:hover { color: var(--sidebar-text); background: var(--sidebar-hover); }
 
-.sidebar a:hover {
-  color: var(--sidebar-text);
-  background: var(--sidebar-hover);
-}
-
-/* Content */
 .content {
   flex: 1;
   padding: 25px;
@@ -163,21 +157,19 @@ body {
 /* ========================= */
 /*  BUTTONS */
 /* ========================= */
-.theme-toggle-btn,
-.profile-btn {
+.theme-btn {
   background: none;
   border: none;
   cursor: pointer;
   color: var(--text-color);
 }
 
-/* ========================= */
-/*  PROFILE */
-/* ========================= */
+h2 { margin-bottom: 10px; font-weight: 700; }
+
 .profile-icon {
   width: 40px;
   height: 40px;
-  background: #2563eb;
+  background: var(--active-bg);
   color: #fff;
   border-radius: 50%;
   display: flex;
@@ -185,51 +177,59 @@ body {
   justify-content: center;
 }
 
+/* ========================= */
+/* ALL USERS PAGE */
+/* ========================= */
+.allusers-container {
+  background: var(--bg-main);
+  min-height: 100vh;
+  padding: 20px;
+  color: var(--text-color);
+}
+
+.user-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 10px 15px;
+  background: var(--nav-bg);
+  border-radius: 8px;
+}
+
+.nav-right { display: flex; gap: 10px; align-items: center; }
+.allusers-title { font-size: 20px; font-weight: 700; color: var(--text-color); }
 
 /* ========================= */
-/*  AddUser  */
+/*  ADD USER CONTAINER */
 /* ========================= */
 .adduser-container {
-
-  width: 500px;
-  max-width: 100%;
-  background: var(--card-bg);
-  padding: 25px;
-  border: none !important; 
+  background: var(--nav-bg);
+  color: var(--text-color);
+  padding: 20px;
 }
 
 /* ========================= */
-/*  AllUsers  */
+/*  MODAL — scoped only      */
+/*  ConfigProvider handles   */
+/*  all colors/bg internally */
 /* ========================= */
-.allusers-container {
-  
+.custom-modal .ant-modal-content {
+  border-radius: 10px !important;
+}
 
- width: 1200px;
-  background: var(--card-bg);
-  padding: 25px;
-  border: none !important;
-  
+.custom-modal .ant-modal-header {
+  border-radius: 10px 10px 0 0 !important;
 }
 
 /* ========================= */
 /*  SETTINGS */
 /* ========================= */
-.settings-container {
-  display: flex;
-  border:none;
-  
-}
-
-.settings-box {
-  width: 400px;
-  max-width: 100%;
-  background: var(--card-bg);
-  padding: 25px;
-
-}
+.settings-container { display: flex; border: none; }
+.settings-box { width: 400px; max-width: 100%; background: var(--card-bg); padding: 25px; }
 
 /* ========================= */
-/*  LOGIN */
+/* LOGIN PAGE */
 /* ========================= */
 .Login-container {
   min-height: 100vh;
@@ -237,7 +237,6 @@ body {
   justify-content: center;
   align-items: center;
   background: var(--bg-main);
-  border:none !important
 }
 
 .Login-container .ant-form {
@@ -245,22 +244,15 @@ body {
   padding: 35px;
   border-radius: 12px;
   border: 1px solid var(--border-color);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  color: var(--text-color);
 }
 
-
-/* ========================= */
-/*  TABLE */
-/* ========================= */
-.ant-table {
-  border-radius: 10px;
-  overflow: hidden;
+[data-theme="dark"] .Login-container .ant-form {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
 }
 
-.ant-table-thead > tr > th {
-  background: var(--primary) !important;
-  color: var(--text-color) !important;
-}
+.login-title { color: var(--text-color); text-align: center; }
 
 /* ========================= */
 /*  STOPWATCH */
@@ -281,39 +273,13 @@ body {
   text-align: center;
 }
 
-.stopwatch:hover {
-  transform: translateY(-4px);
-}
+.stopwatch:hover { transform: translateY(-4px); }
+.head { font-size: 22px; margin-bottom: 15px; }
+.timer-display { font-size: 2.3rem; font-weight: bold; margin: 20px 0; letter-spacing: 2px; }
 
-.head {
-  font-size: 22px;
-  margin-bottom: 15px;
-}
-
-.timer-display {
-  font-size: 2.3rem;
-  font-weight: bold;
-  margin: 20px 0;
-  letter-spacing: 2px;
-}
-
-.buttons {
-  display: flex;
-  gap: 10px;
-}
-
-.buttons button {
-  flex: 1;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.buttons button:hover {
-  transform: translateY(-2px);
-}
+.buttons { display: flex; gap: 10px; }
+.buttons button { flex: 1; padding: 10px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; }
+.buttons button:hover { transform: translateY(-2px); }
 
 .btn-start { background: var(--success); color: white; }
 .btn-stop { background: var(--danger); color: white; }
@@ -323,308 +289,19 @@ body {
 /*  RESPONSIVE */
 /* ========================= */
 @media (max-width: 768px) {
-  .menu-btn {
-    display: block;
-  }
-
-  .sidebar {
-    position: absolute;
-    top: 60px;
-    left: -220px;
-    height: calc(100vh - 60px);
-    z-index: 1000;
-  }
-
-  .sidebar.active {
-    left: 0;
-  }
+  .menu-btn { display: block; }
+  .sidebar { position: absolute; top: 60px; left: -220px; height: calc(100vh - 60px); z-index: 1000; }
+  .sidebar.active { left: 0; }
 }
 
-
-/*****************************
- All containers Text color 
- *****************************/
-
-.dashboard,
-.content,
-.settings-container,
-.adduser-container,
-.allusers-container {
-  color: var(--text-color);
-}
-
-/******************************
-        Ant table  
- ******************************/
-
-.ant-table-tbody > tr:hover > td {
-  background: var(--hover-bg) !important;
-}
-
-.ant-table-tbody > tr:hover > td {
-  background: var(--hover-bg) !important;
-  color: var(--text-color);
-}
-
- .ant-table-tbody > tr:hover > td {
-  background: var(--hover-bg) !important;
-}
-
-.ant-table-tbody > tr > td {
-  transition: background 0.25s ease;
-}
-
-.ant-table-tbody > tr >th {
-  background: var(--active-bg);
-}
-
-.ant-table-tbody > tr:hover {
-  cursor: pointer;
-}
-
-.ant-input {
-  background: var(--card-bg) !important;
-  color: var(--text-color) !important;
-  
-}
-
-.ant-table-tbody > tr > td {
-  background: var(--card-bg) !important;
-  color: var(--text-color) !important;
-}
-
-.ant-table {
-  background: var(--card-bg) !important;
-}
-
-/**************************
-Pagination Hover
-**************************/
-.ant-pagination-item:hover {
-  border-color: var(--primary);
-}
-
-.ant-pagination-item:hover a {
-  color: var(--primary);
-}
-
-/***********************************
-      Ant Form Inputs
-************************************/
-/* =========================
-   🌞 LIGHT MODE (DEFAULT)
-========================= */
-
-/* Labels */
-.ant-form-item-label > label {
-  color: var(--text-color);
-  font-weight: 500;
-}
-
-/* Inputs */
-.ant-input,
-.ant-input-password input,
-.ant-select-selector {
-  background: var(--card-bg) !important;
-  color: var(--text-color) !important;
-}
-
-/* Placeholder */
-.ant-input::placeholder {
-  color: var(--text-muted) !important;
-}
-
-/* =========================
-   🌙 DARK MODE - FINAL CLEAN VERSION
-========================= */
-
-body[data-theme="dark"] {
-
-  /* =========================
-     🔹 LABEL
-  ========================= */
-  .ant-form-item-label > label {
-    color: var(--text-color) !important;
-  }
-.ant-table-tbody > tr > td {
-  border-bottom: 1px solid rgb(43, 42, 42); /* change color here */
-}
-  /* =========================
-     🔹 INPUT (TEXT + PASSWORD)
-  ========================= */
-
-  .ant-input,
-  .ant-input-password,
-  .ant-input-affix-wrapper {
-    background: var(--nav-bg) !important;
-    border: 1px solid var(--border-color) !important;
-    color: var(--text-color) !important;
-  }
-
-  .ant-input::placeholder {
-    color: var(--text-muted) !important;
-  }
-
-  .ant-input-password input,
-  .ant-input-affix-wrapper input {
-    background: transparent !important;
-    color: var(--text-color) !important;
-    border: none !important;
-  }
-
-  .ant-input-password-icon,
-  .ant-input-affix-wrapper .anticon {
-    color: var(--text-color) !important;
-  }
-
-  /* =========================
-     🔹 SELECT (Role, Gender)
-  ========================= */
-
-  .ant-select {
-    color: var(--text-color) !important;
-  }
-
-  .ant-select-selector {
-    background: var(--nav-bg) !important;
-
-    color: var(--text-color) !important;
-   
-  }
-
-  /* IMPORTANT: removes Ant white layer */
-  .ant-select-outlined:not(.ant-select-customize-input) .ant-select-selector {
-    background: var(--nav-bg) !important;
-  }
-
-  .ant-select-selection-item {
-    color: var(--text-color) !important;
-  }
-
-  .ant-select-selection-placeholder {
-    color: var(--text-muted) !important;
-  }
-
-  .ant-select-arrow {
-    color: var(--text-color) !important;
-  }
-
-  /* internal search input */
-  .ant-select-selection-search input {
-    background: transparent !important;
-    color: var(--text-color) !important;
-    border: none;
-  }
-
-  /* =========================
-     🔥 SELECT DROPDOWN (PORTAL FIX)
-  ========================= */
-
-  /* MUST target html also (portal root) */
-}
-
-html[data-theme="dark"] .ant-select-dropdown,
-body[data-theme="dark"] .ant-select-dropdown {
-  background: var(--nav-bg) !important;
-  color: var(--text-color);
-}
-
-html[data-theme="dark"] .ant-select-item,
-body[data-theme="dark"] .ant-select-item {
-  background: var(--nav-bg) !important;
-  color: var(--text-color) !important;
-}
-
-html[data-theme="dark"] .ant-select-item-option-active {
-  background: var(--hover-bg) !important;
-}
-
-html[data-theme="dark"] .ant-select-item-option-selected {
-  background: var(--primary) !important;
-  color: #fff !important;
-}
-
-/* =========================
-   🔹 PHONE INPUT (+91)
-========================= */
-
-body[data-theme="dark"] .ant-input-group-wrapper,
-body[data-theme="dark"] .ant-input-group {
-  background: var(--nav-bg) !important;
-  border: none;
-}
-
-body[data-theme="dark"] .ant-input-group-addon {
-  background: var(--nav-bg) !important;
-  color: var(--text-color) !important;
-  border: none;
-}
-
-/* input field */
-body[data-theme="dark"] .ant-input-group .ant-input {
-  background: var(--nav-bg) !important;
-  color: var(--text-color) !important;
- 
-}
-
-
-/* =========================
-   🚀 FINAL SAFETY (NO WHITE ANYWHERE)
-========================= */
-
-body[data-theme="dark"] .ant-select-selector,
-body[data-theme="dark"] .ant-input,
-body[data-theme="dark"] .ant-input-group-addon {
-  background-image: none !important;
-}
-
-/* =========================
-   🔥 FINAL SELECT BACKGROUND FIX (REAL FIX)
-========================= */
-
-/* 🔹 kill default white/grey background */
-body[data-theme="dark"] .ant-select-outlined {
-  background: transparent !important;
-}
-
-/* 🔹 main selector FIX */
-body[data-theme="dark"] .ant-select-outlined .ant-select-selector {
-  background-color: var(--nav-bg) !important;
-  background: var(--nav-bg) !important;
-}
-
-/*  FIX HOVER STATE (this is your missing part) */
-body[data-theme="dark"] .ant-select-outlined:hover .ant-select-selector {
-  background: var(--nav-bg) !important;
-}
-
-/*  FIX FOCUS STATE */
-body[data-theme="dark"] .ant-select-focused .ant-select-selector {
-  background: var(--nav-bg) !important;
-}
-
-/*  REMOVE ANT GREY OVERLAY */
-body[data-theme="dark"] .ant-select-selector::after {
-  display: none !important;
-}
-
-/*  ULTRA FORCE (last fallback) */
-body[data-theme="dark"] .ant-select,
-body[data-theme="dark"] .ant-select-selector,
-body[data-theme="dark"] .ant-select-outlined,
-body[data-theme="dark"] .ant-select-outlined .ant-select-selector {
-  background-color: var(--nav-bg) !important;
-  border-color: rgb(56, 56, 56);
-}
-
-/************************************
-            Chat Page
- ************************************/
+/* ========================= */
+/*  CHAT PAGE */
+/* ========================= */
 .chat-wrapper {
   min-height: 80vh;
   display: flex;
-  justify-content: center;   /* horizontal center */
-  align-items: center;       /* vertical center */
+  justify-content: center;
+  align-items: center;
   background: var(--bg-main);
 }
 
@@ -632,263 +309,69 @@ body[data-theme="dark"] .ant-select-outlined .ant-select-selector {
   width: 600px;
   padding: 20px;
   border-radius: 10px;
-  background: white;
+  background: var(--card-bg);
   box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 }
 
-.chatbot-container{
+.chatbot-container {
   height: 300px;
   overflow-y: auto;
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
   margin-bottom: 10px;
-
-  display: flex;
-  flex-direction: column; /* 🔥 IMPORTANT */
-}
-
-/************************************
-            Chatbot UI
-************************************/
-
-/* MAIN LAYOUT */
-.chat-app {
-  display: flex;
-  height: 100vh;
-  background: #f0f2f5;
-}
-
-/* SIDEBAR */
-.chat-sidebar {
-  width: 30%;
-  background: white;
-  border-right: 1px solid #ddd;
-  overflow-y: auto;
-  padding: 10px;
-}
-
-.sidebar h3 {
-  margin-bottom: 10px;
-}
-
-.sidebar-user {
-  display: flex;
-  gap: 10px;
-  padding: 10px;
-  cursor: pointer;
-  border-radius: 8px;
-}
-
-.sidebar-user:hover {
-  background: #f5f5f5;
-}
-
-.avatar {
-  width: 40px;
-  height: 40px;
-  background: #1677ff;
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 50%;
-}
-
-.name {
-  font-weight: 500;
-}
-
-.last-msg {
-  font-size: 12px;
-  color: gray;
-}
-
-/* CHAT WINDOW */
-.chat-window {
-  width: 70%;
   display: flex;
   flex-direction: column;
 }
 
-.chat-window.empty {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 18px;
-}
+.chat-app { display: flex; flex: 1; height: 100%; border-radius: 10px; overflow: hidden; background: var(--bg-main); }
 
-/* HEADER */
-.chat-header {
-  padding: 15px;
-  background: #ededed;
-  font-weight: bold;
-}
-
-/* MESSAGES */
-.chat-messages {
-  flex: 1;
-  padding: 15px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.msg {
-  max-width: 60%;
-  padding: 8px 12px;
-  margin: 5px 0;
-  border-radius: 10px;
-}
-
-.msg.me {
-  align-self: flex-end;
-  background: #1677ff;
-  color: white;
-}
-
-.msg.them {
-  align-self: flex-start;
-  background: #e4e6eb;
-}
-
-/* INPUT */
-.chat-input {
-  display: flex;
-  gap: 10px;
-  padding: 10px;
-  border-top: 1px solid #ddd;
-}
-
-.chat-page {
-  flex: 1;
-  display: flex;
-  height: 100%;
-}
-
-/* Whole chat layout */
-.chat-app {
-  display: flex;
-  flex: 1;
-  height: 100%;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-/* LEFT SIDEBAR (users) */
 .chat-sidebar {
   width: 280px;
-  border-right: 1px solid #ddd;
-  overflow-y: auto;
-}
-
-/* RIGHT CHAT WINDOW */
-.chat-window {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Messages area */
-.chat-messages {
-  flex: 1;
-  overflow-y: auto;
-  padding: 10px;
-}
-
-/* Input area */
-.chat-input {
-  display: flex;
-  padding: 10px;
-  border-top: 1px solid #ddd;
-}
-
-/************************************
-   CHAT DARK THEME
-************************************/
-
-/* Chat App Background */
-body[data-theme="dark"] .chat-app {
-  background: var(--bg-main);
-}
-
-/* LEFT SIDEBAR */
-body[data-theme="dark"] .chat-sidebar {
   background: var(--nav-bg);
   border-right: 1px solid var(--border-color);
+  overflow-y: auto;
+  padding: 10px;
 }
 
-/* Sidebar User Item */
-body[data-theme="dark"] .sidebar-user {
-  background: transparent;
-  color: var(--text-color);
-}
+.chatsidebar-user { display: flex; gap: 10px; padding: 10px; cursor: pointer; border-radius: 8px; color: var(--text-color); transition: 0.2s; }
+.chatsidebar-user:hover { background: var(--hover-bg); }
 
-body[data-theme="dark"] .sidebar-user:hover {
-  background: var(--hover-bg);
-}
+.avatar { width: 40px; height: 40px; background: var(--primary); color: #fff; display: flex; justify-content: center; align-items: center; border-radius: 50%; }
+.name { font-weight: 500; color: var(--text-color); }
+.last-msg { font-size: 12px; color: var(--text-muted); }
 
-/* Avatar */
-body[data-theme="dark"] .avatar {
-  background: var(--primary);
-  color: #fff;
-}
+.chat-window { height: 84vh; flex: 1; display: flex; flex-direction: column; }
+.chat-window.empty { display: flex; justify-content: center; align-items: center; font-size: 18px; color: var(--text-muted); }
 
-/* Username */
-body[data-theme="dark"] .name {
-  color: var(--text-color);
-}
+.chat-header { padding: 15px; background: var(--nav-bg); font-weight: 600; color: var(--text-color); border-bottom: 1px solid var(--border-color); }
 
-/* Last Message */
-body[data-theme="dark"] .last-msg {
-  color: var(--text-muted);
-}
+.chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; background: var(--bg-secondary); scroll-behavior: smooth; }
 
-/* ================= CHAT WINDOW ================= */
+.msg { max-width: 60%; padding: 8px 12px; margin: 5px 0; border-radius: 10px; font-size: 14px; word-break: break-word; }
+.msg.me { align-self: flex-end; background: var(--primary); color: #fff; }
+.msg.them { align-self: flex-start; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); }
 
-/* Header */
-body[data-theme="dark"] .chat-header {
-  background: var(--nav-bg);
-  color: var(--text-color);
-  border-bottom: 1px solid var(--border-color);
-}
+.chat-input { display: flex; gap: 10px; padding: 10px; background: var(--nav-bg); border-top: 1px solid var(--border-color); }
+.chat-input input { background: var(--bg-main) !important; color: var(--text-color) !important; border: 1px solid var(--border-color); }
+.chat-input button { background: var(--primary); border: none; color: #fff; }
+.chat-input button:hover { background: var(--primary-hover); }
 
-/* Messages Area */
-body[data-theme="dark"] .chat-messages {
-  background: var(--bg-secondary);
-}
+/* ========================= */
+/*  NOTIFICATION */
+/* ========================= */
+.bell-container { position: relative; cursor: pointer; }
 
-/* Message Bubble (Me) */
-body[data-theme="dark"] .msg.me {
-  background: var(--primary);
-  color: #fff;
-}
+.badge { position: absolute; top: -6px; right: -8px; background: red; color: #fff; font-size: 10px; padding: 3px 6px; border-radius: 50%; }
 
-/* Message Bubble (Them) */
-body[data-theme="dark"] .msg.them {
-  background: #1e293b; /* slightly lighter dark */
-  color: var(--text-color);
-}
+.dropdown { position: absolute; top: 35px; right: 0; width: 260px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; box-shadow: 0 6px 16px rgba(0,0,0,0.15); z-index: 999; }
 
-/* Input Area */
-body[data-theme="dark"] .chat-input {
-  background: var(--nav-bg);
-  border-top: 1px solid var(--border-color);
-}
+.notification-item { padding: 10px; border-bottom: 1px solid var(--border-color); font-size: 14px; }
+.notification-item:hover { background: var(--hover-bg); }
+.view-all { padding: 10px; text-align: center; font-weight: 600; cursor: pointer; color: var(--primary); }
 
-/* Input Box */
-body[data-theme="dark"] .chat-input input {
-  background: var(--bg-main) !important;
-  color: var(--text-color) !important;
-  border: 1px solid var(--border-color);
-}
+.notification-page { height: 84vh; background: var(--bg-main); color: var(--text-color); }
 
-/* Send Button */
-body[data-theme="dark"] .chat-input button {
-  background: var(--primary);
-  border: none;
-}
-
-/* Empty Chat Screen */
-body[data-theme="dark"] .chat-window.empty {
-  color: var(--text-muted);
-}
+.notification-card { padding: 15px; margin-bottom: 10px; border-radius: 10px; background: var(--card-bg); border: 1px solid var(--border-color); }
+.notification-card.unread { border-left: 4px solid var(--primary); }
+.notification-card.read { opacity: 0.7; }
+.notification-card button { margin-top: 5px; padding: 5px 10px; border: none; background: var(--primary); color: white; border-radius: 5px; cursor: pointer; }

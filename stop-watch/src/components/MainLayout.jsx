@@ -1,52 +1,83 @@
-import React, { useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { IoMdSunny, IoMdMoon } from "react-icons/io";
 import { useTheme } from "../context/ThemeContext";
-import {NavLink} from 'react-router-dom';
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import "../assets/mainlayout.css";
-import { Outlet } from "react-router-dom";
-import { FaUser } from 'react-icons/fa';
-import { useNavigate } from "react-router-dom";
+import { FaUser, FaBell } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
-import { logout } from '../redux/authSlice';
+import { logout } from "../redux/authSlice";
 import { userApi } from "../redux/userApi";
 import { Tooltip } from "antd";
-
+import socket from "../socket/socket"; 
+import { BellOutlined, TeamOutlined } from "@ant-design/icons";
+import { MessageOutlined } from "@ant-design/icons";
+import { SettingOutlined } from "@ant-design/icons";
+import { LogoutOutlined } from "@ant-design/icons";
+import { useGetNotificationsQuery } from "../redux/userApi";
 
 function MainLayout() {
   const [isOpen, setIsOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
-  const [showProfile , setShowProfile] = useState(false);
- 
+   const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const unreadCount = notifications.filter(n => !n.isRead).length;
+
+  const { data: dbNotifications = [] } = useGetNotificationsQuery();
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth.user);
 
- const dispatch = useDispatch();
- const user = useSelector((state) => state.auth.user);
+    // ✅ LOAD EXISTING NOTIFICATIONS (IMPORTANT)
+  useEffect(() => {
+    if (dbNotifications.length) {
+      setNotifications(dbNotifications.slice(0, 5));
+    }
+  }, [dbNotifications]);
 
-  const handleLogout = () =>{
+  // ✅ SOCKET LISTENER
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+
+    if (storedUser?._id) {
+      socket.emit("join", storedUser._id);
+    }
+
+    const handler = (data) => {
+      console.log(" New Notification:", data);
+
+      setNotifications((prev) => [data, ...prev].slice(0, 5));
+    };
+
+    socket.on("new_notification", handler);
+
+    return () => {
+      socket.off("new_notification", handler);
+    };
+  }, []);
+
+  //  FIX TYPO
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+
+    if (storedUser && !user) {
+      dispatch({
+        type: "auth/setUser", //  FIXED
+        payload: JSON.parse(storedUser),
+      });
+    }
+  }, [dispatch, user]);
+
+  const handleLogout = () => {
     localStorage.removeItem("user");
     dispatch(logout());
     dispatch(userApi.util.resetApiState());
-    navigate('/login');
+    navigate("/login");
   };
-
-useEffect(() => {
-  const storedUser = localStorage.getItem("user");
-
-  if (storedUser && !user) {
-    dispatch(
-      {
-        type : "auth/serUser",
-        payload : JSON.parse(storedUser)
-      }
-    )
-     }
-}, [dispatch,user]);
 
   return (
     <div className={`dashboard ${theme}`}>
-
-      {/*  Navbar */}
+      {/* Navbar */}
       <div className="navbar">
         <button className="menu-btn" onClick={() => setIsOpen(!isOpen)}>
           ☰
@@ -54,62 +85,80 @@ useEffect(() => {
 
         <h2>Admin Panel</h2>
 
-        
-        <div className="nav-right" style={{cursor: "pointer",textAlign:"right"}}>
+        <div className="nav-right">
 
-          {/* Profile Icon */}
-          <Tooltip title={user?.email || "No Email"} placement="left"  >
-  <span className="profile-icon">
-   
-      <FaUser size={18} />
-  </span>
-</Tooltip>
+          {/*  Notification */}
+          <div className="bell-container">
+            <FaBell 
+              size={22}
+              onClick={() => setShowNotifications(!showNotifications)}
+            />
 
-   {showProfile && (
-  <div style={{
-    position: "absolute",
-    top: "60px",
-    right: "20px",
-    padding: "10px",
-    textAlign : "center",
-    borderRadius: "8px",
-    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-  }}>
-    <p>{user?.email}</p>
-     </div>
+            {/* Badge */}
+{unreadCount > 0 && (
+  <span className="badge">{unreadCount}</span>
 )}
-         
-          {/* Theme Toggle */}
-          <button onClick={toggleTheme} className="theme-toggle-btn">
-            {theme === "light" ? (
-              <IoMdMoon size={22} />
-            ) : (
-              <IoMdSunny size={22} />
+
+            {/* Dropdown */}
+            {showNotifications && (
+              <div className="dropdown">
+                {notifications.length === 0 ? (
+                  <p style={{ padding: "10px" }}>No notifications</p>
+                ) : (
+                  <>
+                    {notifications.slice(0, 5).map((n, i) => (
+                      <div key={i} className="notification-item">
+                        {n.senderName} sent you a message
+                      </div>
+                    ))}
+
+                    {/* View All */}
+                    <div
+                      className="view-all"
+                      onClick={() => {
+                        setShowNotifications(false);
+                        navigate("/dashboard/notification", {
+                          state: { notifications }, //  PASS DATA
+                        });
+                      }}
+                    >
+                      View All
+                    </div>
+                  </>
+                )}
+              </div>
             )}
+          </div>
+
+          {/* Profile */}
+          <Tooltip title={user?.email || "No Email"} placement="left">
+            <span className="profile-icon">
+              <FaUser size={18} />
+            </span>
+          </Tooltip>
+
+          {/* Theme */}
+          <button onClick={toggleTheme} className="theme-btn">
+            {theme === "light" ? <IoMdMoon size={20} /> : <IoMdSunny size={20} />}
           </button>
-      </div>
+        </div>
       </div>
 
-      {isOpen && <div className="overlay" onClick={() => setIsOpen(false)} />}
-
+      {/* Sidebar */}
       <div className="main">
-
-        {/*  Sidebar */}
-        <div className={`sidebar ${isOpen ? "active" : ""}`} style={{  cursor: "pointer",fontSize:"13px"}}>
+        <div className={`sidebar ${isOpen ? "active" : ""}`}>
           <ul>
-            <li><NavLink to="/dashboard" end>➕ Add User</NavLink></li>
-            <li><NavLink to="/dashboard/alluser">👥 All Users</NavLink></li>
-            <li><NavLink to="/dashboard/chatpage">💬 Chat Page</NavLink></li>
-            <li><NavLink to="/dashboard/settings">⚙️ Settings</NavLink></li>
-           <li><NavLink to ="/login" onClick={handleLogout}>↩️ Logout</NavLink></li>
+            <li><NavLink to="/dashboard" end><TeamOutlined/> All Users</NavLink></li>
+            <li><NavLink to="/dashboard/chatpage"><MessageOutlined/> Chat</NavLink></li>
+            <li><NavLink to="/dashboard/notification"><BellOutlined/> Notifications</NavLink></li>
+            <li><NavLink to="/dashboard/settings"><SettingOutlined/> Settings</NavLink></li>
+            <li><NavLink to="/login" onClick={handleLogout}><LogoutOutlined/> Logout</NavLink></li>
           </ul>
         </div>
 
-        {/*  Content */}
         <div className="content">
           <Outlet />
         </div>
-
       </div>
     </div>
   );

@@ -86,7 +86,7 @@ const Login = () => {
 }}
       scrollToFirstError
     >
-        <h2 style={{marginBottom:"10px",fontWeight:700,color:"blue"}}>Login</h2>
+       <h2 className="login-title">Login</h2>
       <Form.Item
         name="email"
         label ="E-Mail"
