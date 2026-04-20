@@ -18,7 +18,7 @@ const PhoneInput = ({ value = {}, onChange }) => {
   };
 
   return (
-    <Space.Compact style={{ width: "100%" }}>
+    <Space.Compact style={{ width: "100%",flexWrap:"wrap"}}>
       <Select
         value={value.prefix || "91"}
         style={{ width: "25%" }}

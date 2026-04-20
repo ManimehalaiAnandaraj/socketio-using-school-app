@@ -14,6 +14,7 @@ import { MessageOutlined } from "@ant-design/icons";
 import { SettingOutlined } from "@ant-design/icons";
 import { LogoutOutlined } from "@ant-design/icons";
 import { useGetNotificationsQuery } from "../redux/userApi";
+import { FiMenu } from "react-icons/fi";
 
 function MainLayout() {
   const [isOpen, setIsOpen] = useState(false);
@@ -80,7 +81,7 @@ function MainLayout() {
       {/* Navbar */}
       <div className="navbar">
         <button className="menu-btn" onClick={() => setIsOpen(!isOpen)}>
-          ☰
+          <FiMenu size={22} />
         </button>
 
         <h2>Admin Panel</h2>
@@ -148,7 +149,9 @@ function MainLayout() {
       <div className="main">
         <div className={`sidebar ${isOpen ? "active" : ""}`}>
           <ul>
-            <li><NavLink to="/dashboard" end><TeamOutlined/> All Users</NavLink></li>
+            <li onClick={() => setIsOpen(false)}>
+              <NavLink to="/dashboard" end><TeamOutlined/> All Users</NavLink>
+              </li>
             <li><NavLink to="/dashboard/chatpage"><MessageOutlined/> Chat</NavLink></li>
             <li><NavLink to="/dashboard/notification"><BellOutlined/> Notifications</NavLink></li>
             <li><NavLink to="/dashboard/settings"><SettingOutlined/> Settings</NavLink></li>

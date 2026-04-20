@@ -56,11 +56,14 @@ const Stopwatch = () => {
 
   return (
     <>
-    <button onClick={() => navigate('/login')} 
+    <div className="top-bar">
+  <button 
+    onClick={() => navigate('/login')} 
     className="btn-theme"
-    style={{marginLeft:"1400px"}}>
-      Go to Login Page
-    </button>
+  >
+    Go to Login Page
+  </button>
+</div>
     <div className="stopwatch-container">
     
 
