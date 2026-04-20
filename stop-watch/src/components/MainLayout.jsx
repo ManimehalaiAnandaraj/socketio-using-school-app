@@ -29,14 +29,14 @@ function MainLayout() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
 
-    // ✅ LOAD EXISTING NOTIFICATIONS (IMPORTANT)
+    //  LOAD EXISTING NOTIFICATIONS (IMPORTANT)
   useEffect(() => {
     if (dbNotifications.length) {
       setNotifications(dbNotifications.slice(0, 5));
     }
   }, [dbNotifications]);
 
-  // ✅ SOCKET LISTENER
+  //  SOCKET LISTENER
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
 
@@ -109,7 +109,7 @@ function MainLayout() {
                   <>
                     {notifications.slice(0, 5).map((n, i) => (
                       <div key={i} className="notification-item">
-                        {n.senderName} sent you a message
+                        <strong>{n.sender?.name}</strong> sent you a message
                       </div>
                     ))}
 
