@@ -132,7 +132,7 @@ function MainLayout() {
           </div>
 
           {/* Profile */}
-          <Tooltip title={user?.email || "No Email"} placement="left">
+          <Tooltip title={user?.email || "No Email"} placement="bottom">
             <span className="profile-icon">
               <FaUser size={18} />
             </span>
