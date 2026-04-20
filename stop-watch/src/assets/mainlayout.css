@@ -573,10 +573,11 @@ html[data-theme="dark"] {
   flex-direction: column;
 }
 
-.chat-app { display: flex; flex: 1; height: 100%; border-radius: 10px; overflow: hidden; background: var(--bg-main); }
+.chat-app { display: flex; flex: 1; height: 100%; border-radius: 10px; overflow: hidden; background: var(--bg-main); height: 100vh;}
 
 .chat-sidebar {
   width: 280px;
+  height: 90vh;
   background: var(--nav-bg);
   border-right: 1px solid var(--border-color);
   overflow-y: auto;
