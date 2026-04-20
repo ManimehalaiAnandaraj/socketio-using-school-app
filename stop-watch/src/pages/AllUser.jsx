@@ -9,107 +9,116 @@ import {
   Popconfirm,
   Select,
   message,
-  Upload,
 } from "antd";
-import { UserAddOutlined, UploadOutlined, DownloadOutlined } from "@ant-design/icons";
+import {
+  UserAddOutlined,
+  UploadOutlined,
+  DownloadOutlined,
+} from "@ant-design/icons";
 
 import {
   useGetUsersQuery,
   useDeleteUserMutation,
   useUpdateUserMutation,
-  useCreateUserMutation, 
+  useCreateUserMutation,
 } from "../redux/userApi";
 
 import { useSelector } from "react-redux";
 import AddUser from "./AddUser";
 
-// ─── CSV Helpers ──────────────────────────────────────────────────────────────
+/* ================= CSV HELPERS ================= */
 
-/** Convert an array of objects to a CSV string */
 const toCSV = (rows) => {
   if (!rows.length) return "";
+
   const headers = ["name", "email", "phone", "role", "gender"];
+
   const lines = [
     headers.join(","),
+
     ...rows.map((r) =>
       headers
         .map((h) => {
-          const val = r[h] ?? "";
-          // Wrap in quotes if value contains comma, quote, or newline
-          return /[",\n]/.test(val) ? `"${val.replace(/"/g, '""')}"` : val;
+          let val = r[h] ?? "";
+
+          // ✅ FORCE PHONE AS TEXT (prevents scientific notation in Excel)
+          if (h === "phone" && val) {
+            val = `="${val}"`;
+          }
+
+          return /[",\n]/.test(val)
+            ? `"${val.replace(/"/g, '""')}"`
+            : val;
         })
         .join(",")
     ),
   ];
+
   return lines.join("\n");
 };
 
-/** Parse a CSV string into an array of objects (uses first row as headers) */
 const parseCSV = (text) => {
-  const [headerLine, ...dataLines] = text.trim().split(/\r?\n/);
+  const [headerLine, ...lines] = text.trim().split(/\r?\n/);
   const headers = headerLine.split(",").map((h) => h.trim().toLowerCase());
 
-  return dataLines
-    .filter((line) => line.trim())
+  return lines
+    .filter((l) => l.trim())
     .map((line) => {
-      // Simple CSV parse — handles quoted fields
       const values = [];
       let current = "";
       let insideQuote = false;
-      for (let i = 0; i < line.length; i++) {
-        const ch = line[i];
-        if (ch === '"') {
-          insideQuote = !insideQuote;
-        } else if (ch === "," && !insideQuote) {
+
+      for (let ch of line) {
+        if (ch === '"') insideQuote = !insideQuote;
+        else if (ch === "," && !insideQuote) {
           values.push(current.trim());
           current = "";
-        } else {
-          current += ch;
-        }
+        } else current += ch;
       }
       values.push(current.trim());
 
-      return Object.fromEntries(headers.map((h, i) => [h, values[i] ?? ""]));
+      return Object.fromEntries(headers.map((h, i) => [h, values[i] || ""]));
     });
 };
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// ✅ remove duplicate emails inside CSV
+const removeDuplicates = (rows) => {
+  const seen = new Set();
+  return rows.filter((row) => {
+    const key = row.email?.toLowerCase();
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+};
+
+/* ================= COMPONENT ================= */
 
 const AllUser = () => {
   const { data, isLoading, refetch } = useGetUsersQuery();
   const users = data || [];
 
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [deleteUser] = useDeleteUserMutation();
   const [updateUser] = useUpdateUserMutation();
+  const [createUser] = useCreateUserMutation();
 
-  // If your API supports bulk create, wire this up; otherwise we skip import API call
-  // and just show a preview modal.
-  const [createUser] = useCreateUserMutation?.() ?? [null];
-
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
 
-  // Import state
   const [importModalOpen, setImportModalOpen] = useState(false);
-  const [importPreview, setImportPreview] = useState([]); // parsed rows
+  const [importPreview, setImportPreview] = useState([]);
   const [importLoading, setImportLoading] = useState(false);
+
   const fileInputRef = useRef(null);
 
   const [searchText, setSearchText] = useState("");
-  const filteredUsers = users.filter(
-    (user) =>
-      user.name?.toLowerCase().includes(searchText.toLowerCase()) ||
-      user.email?.toLowerCase().includes(searchText.toLowerCase()) ||
-      user.gender?.toLowerCase().includes(searchText.toLowerCase()) ||
-      user.role?.toLowerCase().includes(searchText.toLowerCase())
-  );
-
   const [form] = Form.useForm();
 
   const currentUser = useSelector((state) => state.auth.user);
   const isSuperAdmin = currentUser?.role === "superadmin";
   const isAdmin = currentUser?.role === "admin";
+
   const canEdit = isSuperAdmin || isAdmin;
   const canDelete = isSuperAdmin;
   const canAddUser =
@@ -117,128 +126,129 @@ const AllUser = () => {
     currentUser?.role === "admin" ||
     currentUser?.role === "staff";
 
-  // ── Export ──────────────────────────────────────────────────────────────────
+  const filteredUsers = users.filter(
+    (u) =>
+      u.name?.toLowerCase().includes(searchText.toLowerCase()) ||
+      u.email?.toLowerCase().includes(searchText.toLowerCase()) ||
+      u.role?.toLowerCase().includes(searchText.toLowerCase()) ||
+      u.gender?.toLowerCase().includes(searchText.toLowerCase())
+  );
+
+  /* ================= EXPORT ================= */
 
   const handleExport = () => {
-    if (!users.length) {
-      message.warning("No users to export.");
-      return;
-    }
-    const csv = toCSV(users);
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    if (!users.length) return message.warning("No users");
+
+    const blob = new Blob([toCSV(users)], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
+
     const link = document.createElement("a");
     link.href = url;
-    link.download = `users_${new Date().toISOString().slice(0, 10)}.csv`;
-    document.body.appendChild(link);
+    link.download = "users.csv";
     link.click();
-    document.body.removeChild(link);
+
     URL.revokeObjectURL(url);
-    message.success("Users exported successfully!");
   };
 
-  // ── Import ──────────────────────────────────────────────────────────────────
+  /* ================= IMPORT ================= */
 
   const handleImportFileChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     if (!file.name.endsWith(".csv")) {
-      message.error("Please upload a valid .csv file.");
+      message.error("Upload CSV file");
       return;
     }
 
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = (ev) => {
       try {
-        const parsed = parseCSV(event.target.result);
-        if (!parsed.length) {
-          message.error("CSV file is empty or unreadable.");
-          return;
-        }
+        const parsed = parseCSV(ev.target.result);
         setImportPreview(parsed);
         setImportModalOpen(true);
       } catch {
-        message.error("Failed to parse CSV. Please check the file format.");
+        message.error("CSV parse error");
       }
     };
+
     reader.readAsText(file);
-    // Reset so same file can be re-selected
     e.target.value = "";
   };
 
   const handleImportConfirm = async () => {
-    if (!createUser) {
-      // No bulk create API — show a notice and close
-      message.info(
-        "Import preview complete. Wire up createUser mutation to persist data."
-      );
-      setImportModalOpen(false);
-      return;
-    }
+  setImportLoading(true);
 
-    setImportLoading(true);
-    let successCount = 0;
-    let failCount = 0;
+  let created = 0;
+  let skipped = 0;
+  let failed = 0;
 
-    for (const row of importPreview) {
+  try {
+    // Step 1: clean + normalize CSV data
+    const cleanData = removeDuplicates(
+      importPreview.map((row) => ({
+        name: row.name?.trim(),
+        email: row.email?.trim().toLowerCase(),
+        phone: row.phone?.toString().replace(/^="?|"?$/g, "").trim(),
+        role: row.role?.trim(),
+        gender: row.gender?.trim(),
+        password:"123456",
+      }))
+    );
+
+    // Step 2: build a Set of existing emails for fast lookup
+    const existingEmails = new Set(
+      users
+        .filter((u) => u.email)
+        .map((u) => u.email.trim().toLowerCase())
+    );
+
+    // Step 3: only create rows whose email is NOT already in the table
+    for (const row of cleanData) {
+      if (!row.email) {
+        failed++;
+        continue;
+      }
+
+      if (existingEmails.has(row.email)) {
+        skipped++;       // ← already exists, do nothing
+        continue;
+      }
+
       try {
         await createUser(row).unwrap();
-        successCount++;
-      } catch {
-        failCount++;
+        created++;
+      } catch (err) {
+        console.log("Import error:", err);
+        failed++;
       }
     }
 
-    setImportLoading(false);
-    setImportModalOpen(false);
-    setImportPreview([]);
+    message.success(
+      `Created: ${created}, Skipped (already exist): ${skipped}, Failed: ${failed}`
+    );
+
     refetch();
+  } catch (err) {
+    message.error("Import failed");
+  }
 
-    if (successCount)
-      message.success(`${successCount} user(s) imported successfully!`);
-    if (failCount)
-      message.error(`${failCount} user(s) failed to import.`);
-  };
+  setImportLoading(false);
+  setImportModalOpen(false);
+  setImportPreview([]);
+};
 
-  // ── Download sample template ─────────────────────────────────────────────
-
-  const handleDownloadTemplate = () => {
-    const sample = toCSV([
-      {
-        name: "Jane Doe",
-        email: "jane@example.com",
-        phone: "9876543210",
-        role: "student",
-        gender: "Female",
-      },
-    ]);
-    const blob = new Blob([sample], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "import_template.csv";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
-
-  // ── Edit / Delete ────────────────────────────────────────────────────────
+  /* ================= DELETE ================= */
 
   const handleDelete = async (id) => {
     await deleteUser(id);
   };
 
+  /* ================= EDIT ================= */
+
   const handleEdit = (record) => {
     setEditingUser(record);
-    form.setFieldsValue({
-      name: record.name,
-      email: record.email,
-      role: record.role,
-      phone: record.phone,
-      gender: record.gender,
-    });
+    form.setFieldsValue(record);
     setIsModalOpen(true);
   };
 
@@ -249,59 +259,46 @@ const AllUser = () => {
     form.resetFields();
   };
 
-  // ── Columns ──────────────────────────────────────────────────────────────
+  /* ================= TABLE ================= */
 
-  const baseColumns = [
+  const columns = [
     { title: "Name", dataIndex: "name" },
     { title: "Email", dataIndex: "email" },
     { title: "Phone Number", dataIndex: "phone" },
     { title: "Role", dataIndex: "role" },
     { title: "Gender", dataIndex: "gender" },
+    ...(canEdit
+      ? [
+          {
+            title: "Actions",
+            render: (_, r) => (
+              <Space>
+                <Button onClick={() => handleEdit(r)}>Edit</Button>
+                {canDelete && (
+                  <Popconfirm
+                    title="Delete?"
+                    onConfirm={() => handleDelete(r._id)}
+                  >
+                    <Button danger>Delete</Button>
+                  </Popconfirm>
+                )}
+              </Space>
+            ),
+          },
+        ]
+      : []),
   ];
 
-  const actionColumn = {
-    title: "Actions",
-    render: (_, record) => (
-      <Space>
-        {canEdit && (
-          <Button type="primary" onClick={() => handleEdit(record)}>
-            Edit
-          </Button>
-        )}
-        {canDelete && (
-          <Popconfirm
-            title="Are you sure to delete?"
-            onConfirm={() => handleDelete(record._id)}
-          >
-            <Button danger>Delete</Button>
-          </Popconfirm>
-        )}
-      </Space>
-    ),
-  };
-
-  const columns = canEdit ? [...baseColumns, actionColumn] : baseColumns;
-
-  // ── Import preview columns ───────────────────────────────────────────────
-
-  const importColumns = [
-    { title: "Name", dataIndex: "name" },
-    { title: "Email", dataIndex: "email" },
-    { title: "Phone", dataIndex: "phone" },
-    { title: "Role", dataIndex: "role" },
-    { title: "Gender", dataIndex: "gender" },
-  ];
-
-  // ── Render ───────────────────────────────────────────────────────────────
+  /* ================= UI ================= */
 
   return (
     <div className="allusers-container">
 
-      {/* NAVBAR */}
       <div className="user-navbar">
         <div className="nav-left">
           <h2>All Users</h2>
         </div>
+
         <div className="nav-right">
           <Input
             placeholder="Search users..."
@@ -310,7 +307,6 @@ const AllUser = () => {
             style={{ width: 200 }}
           />
 
-          {/* Hidden native file input for CSV upload */}
           <input
             ref={fileInputRef}
             type="file"
@@ -319,153 +315,74 @@ const AllUser = () => {
             onChange={handleImportFileChange}
           />
 
-          {/* Import Button — triggers file picker */}
-          <Button
-            icon={<UploadOutlined />}
-            onClick={() => fileInputRef.current?.click()}
-          >
-            Import
+          <Button onClick={() => fileInputRef.current?.click()}>
+            <UploadOutlined /> Import
           </Button>
 
-          {/* Export Button — downloads CSV of current users */}
-          <Button
-            icon={<DownloadOutlined />}
-            onClick={handleExport}
-          >
-            Export
+          <Button onClick={handleExport}>
+            <DownloadOutlined /> Export
           </Button>
 
           {canAddUser && (
             <Button
               type="primary"
-              icon={<UserAddOutlined />}
               onClick={() => setIsAddModalOpen(true)}
             >
-              Add User
+              <UserAddOutlined /> Add User
             </Button>
           )}
         </div>
       </div>
 
-      {/* ADD USER MODAL */}
-      <Modal
-        title="Add User"
-        open={isAddModalOpen}
-        onCancel={() => setIsAddModalOpen(false)}
-        footer={null}
-        className="custom-modal"
-        getContainer={document.body}
-        destroyOnClose
-        styles={{
-          content: { padding: 0 },
-          header: { padding: "16px 20px", marginBottom: 0 },
-          body: { padding: 0 },
-        }}
-      >
-        <AddUser onSuccess={() => setIsAddModalOpen(false)} />
-      </Modal>
-
-      {/* TABLE */}
       <Table
         columns={columns}
         dataSource={filteredUsers}
         loading={isLoading}
         rowKey="_id"
-        scroll={{ x: 900 }}
-        pagination={{ pageSize: 10 }}
       />
 
-      {/* EDIT MODAL */}
+      {/* ADD */}
       <Modal
-        title="Edit User"
+        open={isAddModalOpen}
+        footer={null}
+        onCancel={() => setIsAddModalOpen(false)}
+      >
+        <AddUser onSuccess={() => setIsAddModalOpen(false)} />
+      </Modal>
+
+      {/* EDIT */}
+      <Modal
         open={isModalOpen}
         onOk={handleUpdate}
         onCancel={() => setIsModalOpen(false)}
-        className="custom-modal"
-        getContainer={document.body}
-        destroyOnClose
-        styles={{
-          content: { padding: 0 },
-          header: { padding: "16px 20px", marginBottom: 0 },
-          body: { padding: "20px" },
-        }}
       >
         <Form form={form} layout="vertical">
-          <Form.Item name="name" label="Name">
-            <Input />
-          </Form.Item>
-          <Form.Item name="email" label="Email">
-            <Input />
-          </Form.Item>
-          {isSuperAdmin && (
-            <Form.Item name="role" label="Role">
-              <Select
-                options={[
-                  { label: "Admin", value: "admin" },
-                  { label: "Staff", value: "staff" },
-                  { label: "Student", value: "student" },
-                ]}
-              />
-            </Form.Item>
-          )}
-          <Form.Item name="phone" label="Phone">
-            <Input />
-          </Form.Item>
-          <Form.Item name="gender" label="Gender">
-            <Select
-              options={[
-                { label: "Male", value: "Male" },
-                { label: "Female", value: "Female" },
-                { label: "Other", value: "Other" },
-              ]}
-            />
-          </Form.Item>
+          <Form.Item name="name" label="Name"><Input /></Form.Item>
+          <Form.Item name="email" label="Email"><Input /></Form.Item>
+          <Form.Item name="phone" label="Phone"><Input /></Form.Item>
+          <Form.Item name="role" label="Role"><Input /></Form.Item>
+          <Form.Item name="gender" label="Gender"><Input /></Form.Item>
         </Form>
       </Modal>
 
-      {/* IMPORT PREVIEW MODAL */}
+      {/* IMPORT */}
       <Modal
-        title={`Import Preview — ${importPreview.length} user(s) found`}
         open={importModalOpen}
-        onCancel={() => {
-          setImportModalOpen(false);
-          setImportPreview([]);
-        }}
+        onCancel={() => setImportModalOpen(false)}
+        onOk={handleImportConfirm}
+        confirmLoading={importLoading}
         width={800}
-        footer={[
-          <Button key="template" onClick={handleDownloadTemplate}>
-            Download Template
-          </Button>,
-          <Button
-            key="cancel"
-            onClick={() => {
-              setImportModalOpen(false);
-              setImportPreview([]);
-            }}
-          >
-            Cancel
-          </Button>,
-          <Button
-            key="confirm"
-            type="primary"
-            loading={importLoading}
-            onClick={handleImportConfirm}
-          >
-            Confirm Import
-          </Button>,
-        ]}
       >
-        <p style={{ marginBottom: 12, color: "#666" }}>
-          Review the data below before confirming. Only rows with valid fields
-          will be imported.
-        </p>
         <Table
-          columns={importColumns}
           dataSource={importPreview}
           rowKey={(_, i) => i}
-          size="small"
-          pagination={{ pageSize: 5 }}
-          scroll={{ x: 600 }}
+          columns={[
+            { title: "Name", dataIndex: "name" },
+            { title: "Email", dataIndex: "email" },
+            { title: "Phone", dataIndex: "phone" },
+            { title: "Role", dataIndex: "role" },
+            { title: "Gender", dataIndex: "gender" },
+          ]}
         />
       </Modal>
 
