@@ -153,7 +153,6 @@ html[data-theme="dark"] {
   border-bottom: 1px solid var(--border-color);
 }
 
-/* nav-left: menu btn + title together on the left */
 .nav-left {
   display: flex;
   align-items: center;
@@ -190,7 +189,16 @@ html[data-theme="dark"] {
 }
 
 /* ========================= */
-/* SIDEBAR — DEFAULT (open)  */
+/* MAIN LAYOUT               */
+/* ========================= */
+.main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ========================= */
+/* NAV SIDEBAR               */
 /* ========================= */
 .sidebar {
   width: 220px;
@@ -229,104 +237,11 @@ html[data-theme="dark"] {
 
 html[data-theme="dark"] .sidebar a:hover { background: var(--text-muted); }
 
-/* ========================= */
-/* SIDEBAR — COLLAPSED       */
-/* icon-only, FiMenu clicked */
-/* ========================= */
-.sidebar.collapsed {
-  width: 56px;
-}
-
-.sidebar.collapsed .link-text {
-  display: none;
-}
-
-.sidebar.collapsed a {
-  justify-content: center;
-  padding: 10px 0;
-  gap: 0;
-}
-
-.sidebar.collapsed li {
-  display: flex;
-  justify-content: center;
-}
-
-/* ========================= */
-/* RESPONSIVE — Tablet       */
-/* ========================= */
-@media (max-width: 768px) {
-  .sidebar {
-    position: fixed;
-    top: 60px;
-    left: -100%;
-    width: 220px !important; /* always full width on mobile */
-    height: calc(100% - 60px);
-    transition: left 0.3s ease;
-    z-index: 1000;
-  }
-
-  /* On mobile: open = slide in, collapsed = stay hidden */
-  .sidebar:not(.collapsed) {
-    left: 0;
-  }
-
-  .sidebar.collapsed {
-    left: -100%;
-    width: 220px !important;
-  }
-
-  .navbar h2 { font-size: 16px; }
-  .nav-right { gap: 10px; }
-  .dropdown { right: -20px; width: 220px; }
-  .content { padding: 15px; }
-}
-
-/* ========================= */
-/* MAIN LAYOUT               */
-/* ========================= */
-.main {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-}
-
-/* ========================= */
-/* SIDEBAR                   */
-/* ========================= */
-.sidebar {
-  width: 220px;
-  background: var(--card-bg);
-  border-right: 1px solid var(--border-color);
-  transition: all 0.3s ease;
-}
-
-.sidebar ul { list-style: none; padding: 10px; }
-.sidebar li { margin: 10px 0; }
-
-.sidebar a {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px;
-  border-radius: 8px;
-  color: var(--text-color);
-  text-decoration: none;
-}
-
-.sidebar a:hover { background: var(--hover-bg); color: var(--text-color); }
-
-.sidebar a.active {
-  background-color: var(--active-bg);
-  color: #ffffff;
-}
-
-.sidebar a.active:hover {
-  background-color: var(--active-bg);
-  color: #ffffff;
-}
-
-html[data-theme="dark"] .sidebar a:hover { background: var(--text-muted) }
+/* ── Collapsed state ── */
+.sidebar.collapsed { width: 56px; }
+.sidebar.collapsed .link-text { display: none; }
+.sidebar.collapsed a { justify-content: center; padding: 10px 0; gap: 0; }
+.sidebar.collapsed li { display: flex; justify-content: center; }
 
 /* ========================= */
 /* CONTENT                   */
@@ -426,13 +341,15 @@ html[data-theme="dark"] .sidebar a:hover { background: var(--text-muted) }
   border-radius: 50%;
   cursor: pointer;
 }
-.theme-btn{
-  border:none;
-   position: relative; 
-   cursor: pointer; 
-   background: none;
-   color: var(--input-text);
+
+.theme-btn {
+  border: none;
+  position: relative;
+  cursor: pointer;
+  background: none;
+  color: var(--input-text);
 }
+
 /* ========================= */
 /* ALL USERS PAGE            */
 /* ========================= */
@@ -569,11 +486,14 @@ html[data-theme="dark"] .Login-container .ant-form {
 }
 
 /* ========================= */
-/* CHAT — THEMED             */
+/* CHAT — BASE               */
 /* ========================= */
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
 
-.chat-page { display: flex; height: 100%; }
+.chat-page {
+  display: flex;
+  height: 100%;
+}
 
 .chat-app {
   display: flex;
@@ -585,6 +505,7 @@ html[data-theme="dark"] .Login-container .ant-form {
   background: var(--chat-sidebar-bg);
   font-family: 'DM Sans', sans-serif;
   box-shadow: var(--chat-shadow);
+  position: relative; /* required for mobile overlay + slide-in sidebar */
 }
 
 /* ── Chat Sidebar ── */
@@ -596,6 +517,8 @@ html[data-theme="dark"] .Login-container .ant-form {
   flex-direction: column;
   border-right: 1px solid var(--chat-border);
   overflow-y: auto;
+  transition: transform 0.25s ease;
+  z-index: 20;
 }
 
 .chat-sidebar::-webkit-scrollbar { width: 0; }
@@ -621,7 +544,7 @@ html[data-theme="dark"] .Login-container .ant-form {
   color: var(--chat-text-primary);
 }
 
-/* User rows */
+/* ── User rows ── */
 .chatsidebar-user {
   display: flex;
   align-items: center;
@@ -635,7 +558,6 @@ html[data-theme="dark"] .Login-container .ant-form {
 }
 
 .chatsidebar-user:hover { background: var(--chat-sidebar-hover); }
-
 .chatsidebar-user.active { background: var(--chat-sidebar-active); }
 
 .chatsidebar-user.active::before {
@@ -650,7 +572,7 @@ html[data-theme="dark"] .Login-container .ant-form {
   border-radius: 0 4px 4px 0;
 }
 
-/* Avatar */
+/* ── Avatar ── */
 .avatar {
   width: 36px;
   height: 36px;
@@ -701,7 +623,7 @@ html[data-theme="dark"] .Login-container .ant-form {
   gap: 8px;
 }
 
-/* Header */
+/* ── Chat Header ── */
 .chat-header {
   padding: 14px 20px;
   background: var(--chat-header-bg);
@@ -715,7 +637,7 @@ html[data-theme="dark"] .Login-container .ant-form {
   color: var(--chat-text-primary);
 }
 
-/* Back button (hidden on desktop, shown on mobile) */
+/* Back / hamburger button — hidden on desktop, shown on mobile */
 .back-btn {
   display: none;
   align-items: center;
@@ -732,7 +654,7 @@ html[data-theme="dark"] .Login-container .ant-form {
 
 .back-btn:hover { background: var(--chat-sidebar-hover); }
 
-/* Messages area */
+/* ── Messages Area ── */
 .chat-messages {
   flex: 1;
   padding: 20px;
@@ -750,7 +672,7 @@ html[data-theme="dark"] .Login-container .ant-form {
   border-radius: 2px;
 }
 
-/* Message bubbles */
+/* ── Message Bubbles ── */
 .msg {
   max-width: 62%;
   padding: 9px 14px;
@@ -775,7 +697,7 @@ html[data-theme="dark"] .Login-container .ant-form {
   border-bottom-left-radius: 4px;
 }
 
-/* Input area */
+/* ── Input Area ── */
 .chat-input {
   display: flex;
   align-items: center;
@@ -786,7 +708,7 @@ html[data-theme="dark"] .Login-container .ant-form {
   flex-shrink: 0;
 }
 
-/* Ant Design overrides — themed */
+/* ── Ant Design overrides ── */
 .chat-input .ant-input {
   background: var(--chat-input-bg) !important;
   color: var(--chat-text-primary) !important;
@@ -817,28 +739,29 @@ html[data-theme="dark"] .Login-container .ant-form {
 .chat-input .ant-btn-primary:hover { background: var(--chat-accent2) !important; }
 .chat-input .ant-btn-primary:active { transform: scale(0.96); }
 
-/* Overlay */
+/* ── Mobile Overlay ── */
 .sidebar-overlay {
   display: none;
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.45);
+  background: rgba(0, 0, 0, 0.45);
   z-index: 19;
+  cursor: pointer;
 }
+
 .sidebar-overlay.visible { display: block; }
 
 /* ========================= */
-/* RESPONSIVE                */
+/* RESPONSIVE — Tablet 768px */
 /* ========================= */
-
-/* Tablet */
 @media (max-width: 768px) {
+
   /* Nav sidebar drawer */
   .sidebar {
     position: fixed;
     top: 60px;
     left: -100%;
-    width: 220px;
+    width: 220px !important;
     height: calc(100% - 60px);
     background: var(--card-bg);
     border-right: 1px solid var(--border-color);
@@ -846,7 +769,8 @@ html[data-theme="dark"] .Login-container .ant-form {
     z-index: 1000;
   }
 
-  .sidebar.active { left: 0; }
+  .sidebar:not(.collapsed) { left: 0; }
+  .sidebar.collapsed { left: -100%; width: 220px !important; }
 
   .navbar h2 { font-size: 16px; }
   .nav-right { gap: 10px; }
@@ -873,21 +797,24 @@ html[data-theme="dark"] .Login-container .ant-form {
 
   .allusers-container .nav-right .ant-btn { width: 100%; }
 
-  /* Chat tablet */
+  /* Chat — tablet */
+  .chat-app { border-radius: 8px; }
   .chat-sidebar { width: 220px; }
   .msg { max-width: 75%; }
 }
 
-/* Mobile */
+/* ========================= */
+/* RESPONSIVE — Mobile 600px */
+/* ========================= */
 @media (max-width: 600px) {
+
   .chat-app {
     height: calc(100vh - 60px);
     border-radius: 0;
     border: none;
-    position: relative;
   }
 
-  /* Chat sidebar slides in */
+  /* Chat sidebar slides over the window */
   .chat-sidebar {
     position: absolute;
     top: 0;
@@ -895,30 +822,41 @@ html[data-theme="dark"] .Login-container .ant-form {
     height: 100%;
     width: 80%;
     max-width: 280px;
-    z-index: 20;
     transform: translateX(-100%);
-    transition: transform 0.25s ease;
     border-radius: 0;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.18);
   }
 
   .chat-sidebar.open { transform: translateX(0); }
 
-  /* Show back button on mobile */
+  /* Show back / hamburger button */
   .back-btn { display: flex; }
 
   .msg { max-width: 82%; font-size: 13px; }
   .chat-messages { padding: 14px; }
+  .chat-header { padding: 12px 14px; }
+  .chat-input { padding: 10px 12px; }
 }
 
-/* Small mobile */
+/* ========================= */
+/* RESPONSIVE — Small 480px  */
+/* ========================= */
 @media (max-width: 480px) {
+
+  /* Login */
   .Login-container { padding: 15px; }
   .Login-container .ant-form { padding: 20px; border-radius: 10px; }
   .login-title { font-size: 18px; }
 
+  /* Stopwatch */
   .stopwatch { padding: 20px; }
   .timer-display { font-size: 2rem; }
   .buttons { flex-direction: column; }
   .buttons button { width: 100%; }
   .top-bar { justify-content: center; }
+
+  /* Chat */
+  .chat-sidebar { width: 85%; max-width: none; }
+  .msg { max-width: 90%; font-size: 12.5px; }
+  .chat-input { gap: 8px; }
 }
