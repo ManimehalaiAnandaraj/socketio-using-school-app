@@ -51,20 +51,18 @@ const Login = () => {
   
  const onFinish = async (values) => {
   try {
-    const res = await loginUser(values).unwrap();
+    const result = await loginUser(values).unwrap();
 
-    console.log("Login Success:", res);
+    // Store token and user immediately
+    if (result?.token) localStorage.setItem("token", result.token);
+    if (result?.user)  localStorage.setItem("user", JSON.stringify(result.user));
 
-    localStorage.setItem("user", JSON.stringify(res.user));
-
-    dispatch(setUser(res.user));
-    toast.success("Login successful"); 
-
-    navigate("/dashboard");
+    dispatch(setUser(result.user));
+    navigate("/dashboard/alluser");
 
   } catch (err) {
-    console.error(err);
-    toast.error(err?.data?.message || "Login Failed");
+    console.log("Login error:", err);
+    message.error(err?.data?.message || "Invalid email or password");
   }
 };
 

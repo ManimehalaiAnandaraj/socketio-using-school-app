@@ -356,7 +356,7 @@ const AllUser = () => {
         onOk={handleUpdate}
         onCancel={() => setIsModalOpen(false)}
       >
-        <Form form={form} layout="vertical">
+        <Form form={form} layout="vertical" >
           <Form.Item name="name" label="Name"><Input /></Form.Item>
           <Form.Item name="email" label="Email"><Input /></Form.Item>
           <Form.Item name="phone" label="Phone"><Input /></Form.Item>

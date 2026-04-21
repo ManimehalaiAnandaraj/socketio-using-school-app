@@ -8,7 +8,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../redux/authSlice";
 import { userApi } from "../redux/userApi";
 import { Tooltip } from "antd";
-import socket from "../socket/socket"; 
+import socket from "../socket/socket";
 import { BellOutlined, TeamOutlined } from "@ant-design/icons";
 import { MessageOutlined } from "@ant-design/icons";
 import { SettingOutlined } from "@ant-design/icons";
@@ -17,53 +17,58 @@ import { useGetNotificationsQuery } from "../redux/userApi";
 import { FiMenu } from "react-icons/fi";
 
 function MainLayout() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true); // true = full, false = icon-only
   const { theme, toggleTheme } = useTheme();
-   const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
-  const unreadCount = notifications.filter(n => !n.isRead).length;
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
 
-  const { data: dbNotifications = [] } = useGetNotificationsQuery();
+  const token = localStorage.getItem("token");
+  const { data: dbNotifications = [] } = useGetNotificationsQuery(undefined, {
+    skip: !token,
+  });
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
 
-    //  LOAD EXISTING NOTIFICATIONS (IMPORTANT)
+  // LOAD EXISTING NOTIFICATIONS
   useEffect(() => {
     if (dbNotifications.length) {
       setNotifications(dbNotifications.slice(0, 5));
     }
   }, [dbNotifications]);
 
-  //  SOCKET LISTENER
-  useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
+  // SOCKET LISTENER
+useEffect(() => {
+  const storedUser = JSON.parse(localStorage.getItem("user"));
 
-    if (storedUser?._id) {
-      socket.emit("join", storedUser._id);
-    }
+  if (storedUser?._id) {
+    socket.emit("join", storedUser._id);
+  }
 
-    const handler = (data) => {
-      console.log(" New Notification:", data);
+  const handler = (data) => {
+    console.log("New Notification:", data);
 
+    // ✅ Only show notification if I am NOT the sender
+    if (data?.senderId !== storedUser?._id) {
       setNotifications((prev) => [data, ...prev].slice(0, 5));
-    };
+    }
+  };
 
-    socket.on("new_notification", handler);
+  socket.on("new_notification", handler);
 
-    return () => {
-      socket.off("new_notification", handler);
-    };
-  }, []);
+  return () => {
+    socket.off("new_notification", handler);
+  };
+}, []);
 
-  //  FIX TYPO
+  // REHYDRATE USER
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-
     if (storedUser && !user) {
       dispatch({
-        type: "auth/setUser", //  FIXED
+        type: "auth/setUser",
         payload: JSON.parse(storedUser),
       });
     }
@@ -71,6 +76,7 @@ function MainLayout() {
 
   const handleLogout = () => {
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
     dispatch(logout());
     dispatch(userApi.util.resetApiState());
     navigate("/login");
@@ -80,27 +86,27 @@ function MainLayout() {
     <div className={`dashboard ${theme}`}>
       {/* Navbar */}
       <div className="navbar">
-        <button className="menu-btn" onClick={() => setIsOpen(!isOpen)}>
-          <FiMenu size={22} />
-        </button>
-
-        <h2>Admin Panel</h2>
+        <div className="nav-left">
+          <button className="menu-btn" onClick={() => setSidebarOpen(!sidebarOpen)}>
+            <FiMenu size={22} />
+          </button>
+          <h2>Admin Panel</h2>
+        </div>
 
         <div className="nav-right">
 
-          {/*  Notification */}
+           {/* Theme */}
+          <button onClick={toggleTheme} className="theme-btn">
+            {theme === "light" ? <IoMdMoon size={22} /> : <IoMdSunny size={20} />}
+          </button>
+          {/* Notification */}
           <div className="bell-container">
-            <FaBell 
+            <FaBell
               size={22}
               onClick={() => setShowNotifications(!showNotifications)}
             />
+            {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
 
-            {/* Badge */}
-{unreadCount > 0 && (
-  <span className="badge">{unreadCount}</span>
-)}
-
-            {/* Dropdown */}
             {showNotifications && (
               <div className="dropdown">
                 {notifications.length === 0 ? (
@@ -112,14 +118,12 @@ function MainLayout() {
                         <strong>{n.sender?.name}</strong> sent you a message
                       </div>
                     ))}
-
-                    {/* View All */}
                     <div
                       className="view-all"
                       onClick={() => {
                         setShowNotifications(false);
                         navigate("/dashboard/notification", {
-                          state: { notifications }, //  PASS DATA
+                          state: { notifications },
                         });
                       }}
                     >
@@ -137,25 +141,44 @@ function MainLayout() {
               <FaUser size={20} />
             </span>
           </Tooltip>
-
-          {/* Theme */}
-          <button onClick={toggleTheme} className="theme-btn">
-            {theme === "light" ? <IoMdMoon size={22} /> : <IoMdSunny size={20} />}
-          </button>
         </div>
       </div>
 
-      {/* Sidebar */}
+      {/* Main */}
       <div className="main">
-        <div className={`sidebar ${isOpen ? "active" : ""}`}>
+        {/* Sidebar */}
+        <div className={`sidebar ${sidebarOpen ? "" : "collapsed"}`}>
           <ul>
-            <li onClick={() => setIsOpen(false)}>
-              <NavLink to="/dashboard/alluser" end><TeamOutlined/> All Users</NavLink>
-              </li>
-            <li><NavLink to="/dashboard/chatpage"><MessageOutlined/> Chat</NavLink></li>
-            <li><NavLink to="/dashboard/notification"><BellOutlined/> Notifications</NavLink></li>
-            <li><NavLink to="/dashboard/settings"><SettingOutlined/> Settings</NavLink></li>
-            <li><NavLink to="/login" onClick={handleLogout}><LogoutOutlined/> Logout</NavLink></li>
+            <li>
+              <NavLink to="/dashboard/alluser" end>
+                <TeamOutlined />
+                <span className="link-text"> All Users</span>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/dashboard/chatpage">
+                <MessageOutlined />
+                <span className="link-text"> Chat</span>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/dashboard/notification">
+                <BellOutlined />
+                <span className="link-text"> Notifications</span>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/dashboard/settings">
+                <SettingOutlined />
+                <span className="link-text"> Settings</span>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/login" onClick={handleLogout}>
+                <LogoutOutlined />
+                <span className="link-text"> Logout</span>
+              </NavLink>
+            </li>
           </ul>
         </div>
 

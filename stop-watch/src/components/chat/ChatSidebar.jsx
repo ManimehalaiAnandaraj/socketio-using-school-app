@@ -8,8 +8,8 @@ const ChatSidebar = ({ onSelectUser, open }) => {
 
   return (
     <div className={`chat-sidebar ${open ? "open" : ""}`}>
-      <h2>Chat Page</h2>
-      <h3>{currentUser?.name}</h3>
+      <h3 style={{marginLeft:"2px"}}> Chat</h3>
+      <h5 style={{marginTop:"5px"}}>{currentUser?.name}</h5>
 
       {users
         .filter((u) => u._id !== currentUser?._id)

@@ -9,11 +9,9 @@ export const userApi = createApi({
 
     prepareHeaders: (headers) => {
       const token = localStorage.getItem("token");
-
       if (token) {
         headers.set("authorization", `Bearer ${token}`);
       }
-
       return headers;
     },
   }),
@@ -38,10 +36,9 @@ export const userApi = createApi({
       invalidatesTags: ["Users"],
     }),
 
-    //  CREATE USER (for CSV import)
     createUser: builder.mutation({
       query: (newUser) => ({
-        url: "/users",   // same endpoint
+        url: "/users",
         method: "POST",
         body: newUser,
       }),
@@ -73,25 +70,10 @@ export const userApi = createApi({
         method: "POST",
         body: userData,
       }),
-
-      async onQueryStarted(arg, { queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled;
-
-          if (data?.token) {
-            localStorage.setItem("token", data.token);
-          }
-
-          if (data?.user) {
-            localStorage.setItem("user", JSON.stringify(data.user));
-          }
-
-        } catch (err) {
-          console.error("Login failed:", err);
-        }
-      },
+      // ✅ No onQueryStarted here — handle in Login.jsx with .unwrap()
     }),
 
+    // ✅ skip: !token must be used wherever this hook is called
     getMe: builder.query({
       query: () => "/users/me",
     }),
@@ -101,6 +83,7 @@ export const userApi = createApi({
     getNotifications: builder.query({
       query: () => "/notifications",
       providesTags: ["Notifications"],
+      // ✅ skip: !token must be used wherever this hook is called
     }),
 
     markNotificationRead: builder.mutation({
@@ -114,12 +97,10 @@ export const userApi = createApi({
   }),
 });
 
-// ================= EXPORT HOOKS =================
-
 export const {
   useGetUsersQuery,
   useAddUserMutation,
-  useCreateUserMutation, 
+  useCreateUserMutation,
   useDeleteUserMutation,
   useUpdateUserMutation,
 
