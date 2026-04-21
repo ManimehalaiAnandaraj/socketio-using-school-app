@@ -134,13 +134,13 @@ function MainLayout() {
           {/* Profile */}
           <Tooltip title={user?.email || "No Email"} placement="bottom">
             <span className="profile-icon">
-              <FaUser size={18} />
+              <FaUser size={20} />
             </span>
           </Tooltip>
 
           {/* Theme */}
           <button onClick={toggleTheme} className="theme-btn">
-            {theme === "light" ? <IoMdMoon size={20} /> : <IoMdSunny size={20} />}
+            {theme === "light" ? <IoMdMoon size={22} /> : <IoMdSunny size={20} />}
           </button>
         </div>
       </div>

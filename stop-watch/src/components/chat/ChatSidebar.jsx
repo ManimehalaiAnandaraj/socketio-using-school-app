@@ -2,20 +2,17 @@ import React from "react";
 import { useGetUsersQuery } from "../../redux/userApi";
 import { useSelector } from "react-redux";
 
-const ChatSidebar = ({ onSelectUser }) => {
+const ChatSidebar = ({ onSelectUser, open }) => {
   const { data: users = [] } = useGetUsersQuery();
   const currentUser = useSelector((state) => state.auth.user);
 
   return (
-    <div>
-       <h2>
-        Chat Page
-      </h2>
-    <div className="chat-sidebar">
-      <h3> {currentUser?.name}</h3>
+    <div className={`chat-sidebar ${open ? "open" : ""}`}>
+      <h2>Chat Page</h2>
+      <h3>{currentUser?.name}</h3>
 
       {users
-        .filter((u) => u._id !== currentUser._id)
+        .filter((u) => u._id !== currentUser?._id)
         .map((user) => (
           <div
             key={user._id}
@@ -29,7 +26,6 @@ const ChatSidebar = ({ onSelectUser }) => {
             </div>
           </div>
         ))}
-    </div>
     </div>
   );
 };

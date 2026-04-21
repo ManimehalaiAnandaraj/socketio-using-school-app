@@ -4,11 +4,28 @@ import ChatWindow from "./ChatWindow";
 
 const ChatLayout = () => {
   const [selectedUser, setSelectedUser] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div className="chat-app">
-      <ChatSidebar onSelectUser={setSelectedUser} />
-      <ChatWindow selectedUser={selectedUser} />
+      {/* Overlay for mobile */}
+      <div
+        className={`sidebar-overlay ${sidebarOpen ? "visible" : ""}`}
+        onClick={() => setSidebarOpen(false)}
+      />
+
+      <ChatSidebar
+        open={sidebarOpen}
+        onSelectUser={(user) => {
+          setSelectedUser(user);
+          setSidebarOpen(false);
+        }}
+      />
+
+      <ChatWindow
+        selectedUser={selectedUser}
+        onOpenSidebar={() => setSidebarOpen(true)}
+      />
     </div>
   );
 };
