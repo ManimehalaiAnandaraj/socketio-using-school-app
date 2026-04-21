@@ -150,7 +150,7 @@ function MainLayout() {
         <div className={`sidebar ${isOpen ? "active" : ""}`}>
           <ul>
             <li onClick={() => setIsOpen(false)}>
-              <NavLink to="/dashboard" end><TeamOutlined/> All Users</NavLink>
+              <NavLink to="/dashboard/alluser" end><TeamOutlined/> All Users</NavLink>
               </li>
             <li><NavLink to="/dashboard/chatpage"><MessageOutlined/> Chat</NavLink></li>
             <li><NavLink to="/dashboard/notification"><BellOutlined/> Notifications</NavLink></li>

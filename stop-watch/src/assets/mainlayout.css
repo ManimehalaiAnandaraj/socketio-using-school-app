@@ -206,9 +206,19 @@ html[data-theme="dark"] {
   text-decoration: none;
 }
 
-.sidebar a:hover { background: rgba(0,0,0,0.05); }
+.sidebar a:hover { background: var(--hover-bg); color: var(--text-color); }
 
-html[data-theme="dark"] .sidebar a:hover { background: rgba(255,255,255,0.05); }
+.sidebar a.active {
+  background-color: var(--active-bg);
+  color: #ffffff;
+}
+
+.sidebar a.active:hover {
+  background-color: var(--active-bg);
+  color: #ffffff;
+}
+
+html[data-theme="dark"] .sidebar a:hover { background: var(--text-muted) }
 
 /* ========================= */
 /* CONTENT                   */
